@@ -1,4 +1,4 @@
-package com.heytusar;
+package com.heytusar.mongocbg;
 
 import java.io.IOException;
 
@@ -14,15 +14,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CorsFilter implements Filter {
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         httpServletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
         httpServletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "Accept");
-        
-        System.out.println("doFilter chaining --------------------->");
         chain.doFilter(request, response);
     }
     

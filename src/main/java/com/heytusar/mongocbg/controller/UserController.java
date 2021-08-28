@@ -1,6 +1,7 @@
 package com.heytusar.mongocbg.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,24 +23,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
-public class AuthController {
-    private Logger log =  LoggerFactory.getLogger(AuthController.class);
+public class UserController {
+    private Logger log =  LoggerFactory.getLogger(UserController.class);
     private AuthService authService;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public UserController(AuthService authService) {
         this.authService = authService;
     }
 
     @GetMapping(value="/users")
     List<User> getUsers() {
-        log.info("Returning many users from controller --------------->");
         return authService.getUsers();
     }
 
     @GetMapping(value="/user/{id}")
     public User getUser(@PathVariable String id) {
-        log.info("Returning single user from controller --------------->");
         return authService.getUser(id);
     }
 
@@ -48,17 +47,18 @@ public class AuthController {
         JSONObject json = new JSONObject(jsonBody);
         String usernameOrEmail = json.getString("email");
         String password = json.getString("password");
-        JSONObject responseJson = authService.signin(usernameOrEmail, password);
-        log.info("responseJson authCheck ----------------> " + responseJson);
+        Map result = authService.signin(usernameOrEmail, password);
+        JSONObject responseJson = (JSONObject) result.get("json");
+        Map jwtParts = (Map) result.get("jwtParts");
         HttpHeaders headers = new HttpHeaders();
         if(responseJson.get("status") == "ok") {
-            ResponseCookie cookie1 = ResponseCookie.from("cookie1", "cookie1val")
+            ResponseCookie cookie1 = ResponseCookie.from("cookie1", (String) jwtParts.get("part1"))
                 .sameSite("None")
                 .secure(true)
                 .path("/")
                 .maxAge(3600)
                 .build();
-            ResponseCookie cookie2 = ResponseCookie.from("cookie2", "cookie2val")
+            ResponseCookie cookie2 = ResponseCookie.from("cookie2", (String) jwtParts.get("part2"))
                 .sameSite("None")
                 .secure(true)
                 .httpOnly(true)
@@ -68,7 +68,6 @@ public class AuthController {
             headers.add(HttpHeaders.SET_COOKIE, cookie1.toString());
             headers.add(HttpHeaders.SET_COOKIE, cookie2.toString());
         }
-        log.info("Returning from controller --------------->" + responseJson.toString());
         return new ResponseEntity<String>(responseJson.toString(), headers, HttpStatus.OK);
     }
     
@@ -79,7 +78,6 @@ public class AuthController {
         String username = json.getString("username");
         String password = json.getString("password");
         JSONObject responseJson = authService.saveUser(email, username, password);
-        log.info("responseJson saveUser ----------------> " + responseJson);
         return responseJson.toString();
     }
     

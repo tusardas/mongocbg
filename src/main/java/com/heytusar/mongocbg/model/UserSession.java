@@ -1,6 +1,6 @@
 package com.heytusar.mongocbg.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -10,7 +10,7 @@ public class UserSession {
     @Id
     private String id;
     private String userId;
-    private LocalDate lastHit;
+    private LocalDateTime lastHit;
     public String getId() {
         return id;
     }
@@ -23,10 +23,10 @@ public class UserSession {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-    public LocalDate getLastHit() {
+    public LocalDateTime getLastHit() {
         return lastHit;
     }
-    public void setLastHit(LocalDate lastHit) {
+    public void setLastHit(LocalDateTime lastHit) {
         this.lastHit = lastHit;
     }
 }

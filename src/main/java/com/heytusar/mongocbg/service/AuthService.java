@@ -1,7 +1,9 @@
 package com.heytusar.mongocbg.service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.heytusar.mongocbg.model.User;
 import com.heytusar.mongocbg.model.UserSession;
@@ -9,6 +11,8 @@ import com.heytusar.mongocbg.repository.UserRepository;
 import com.heytusar.mongocbg.repository.UserSessionRepository;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,24 +21,30 @@ import org.springframework.util.StringUtils;
 @Service
 @Transactional
 public class AuthService {
-    
+    private Logger log =  LoggerFactory.getLogger(AuthService.class);
     private UserRepository userRepository;
     private UserSessionRepository userSessionRepository;
+    private JwtService jwtService;
     @Autowired
     public AuthService(UserRepository userRepository,
-        UserSessionRepository userSessionRepository
+        UserSessionRepository userSessionRepository,
+        JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.userSessionRepository = userSessionRepository;
+        this.jwtService = jwtService;
     }
 
-    public JSONObject signin(String usernameOrEmail, String password) {
+    public Map signin(String usernameOrEmail, String password) {
+        Map result = new HashMap<>();
         JSONObject json = new JSONObject();
+        result.put("json", json);
+
         json.put("status", "failed");
         if(StringUtils.hasText(usernameOrEmail) == false
             || StringUtils.hasText(password)  == false) {
             json.put("error", "Please provide Username, Password");
-            return json;
+            return result;
         }
         User user = userRepository.findByUsernameAndPassword(usernameOrEmail, password);
         if(user == null) {
@@ -42,15 +52,21 @@ public class AuthService {
         }
         if(user == null) {
             json.put("error", "Incorrect Username/Email or Password");
-            return json;
+            return result;
         }
+        Map jwtParts = jwtService.makeJwt(user);
+        /*
         UserSession userSession = new UserSession();
         userSession.setUserId(user.getId());
-        userSession.setLastHit(LocalDate.now());
+        userSession.setLastHit(LocalDateTime.now());
         userSessionRepository.save(userSession);
-        json.put("status", "ok");
+        
         json.put("session", userSession.getId());
-        return json;
+        */
+        json.put("status", "ok");
+        
+        result.put("jwtParts", jwtParts);
+        return result;
     }
 
     public List<User> getUsers() {
@@ -90,6 +106,13 @@ public class AuthService {
         json.put("status", "ok");
         json.put("user_id", user.getId());
         //throw new NullPointerException();
+        
         return json;
     }
+
+    public Map verifyAuth(String bearer) {
+        Map result = jwtService.verifyAuth(bearer);
+        return result;
+    }
+    
 }

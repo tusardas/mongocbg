@@ -1,7 +1,9 @@
 package com.heytusar.mongocbg;
 
-import com.heytusar.CorsFilter;
+import com.heytusar.mongocbg.service.AuthService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -12,24 +14,29 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class CorsConfig implements WebMvcConfigurer {
+public class AppConfig implements WebMvcConfigurer {
+    
+    private Logger log =  LoggerFactory.getLogger(AppConfig.class);
 
     @Autowired
     private Environment environment;
 
-    @Autowired 
-    CorsInterceptor corsInterceptor;
+    @Autowired
+    private AuthService authService;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         String origins = environment.getProperty("client.origins");
         registry.addMapping("/**")
-                .allowedOrigins(origins.split(","));
+            .allowedOrigins(origins.split(","));
     }
     
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(corsInterceptor);
+        AuthInterceptor authInterceptor = new AuthInterceptor(authService);
+        log.info("adding authInterceptor into registry ------------------->");
+        registry.addInterceptor(authInterceptor)
+            .addPathPatterns("/api/**");
     }
 
     @Bean
@@ -38,7 +45,7 @@ public class CorsConfig implements WebMvcConfigurer {
         CorsFilter corsFilter = new CorsFilter();
         registrationBean.setFilter(corsFilter);
         registrationBean.addUrlPatterns("/*");
-        registrationBean.setOrder(1); //set precedence
+        registrationBean.setOrder(1);
         return registrationBean;
     }
     
