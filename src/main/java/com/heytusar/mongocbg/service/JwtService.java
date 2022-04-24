@@ -11,7 +11,7 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.heytusar.mongocbg.model.User;
+import com.heytusar.mongocbg.model.CbgUser;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class JwtService {
 
     private static final String header = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
 
-    private String makePayload(User user) {
+    private String makePayload(CbgUser user) {
         JSONObject payload = new JSONObject();
         payload.put("sub", user.getId());
         payload.put("aud", "cbgui");
@@ -66,7 +66,7 @@ public class JwtService {
         }
     }
 
-    public Map makeJwt(User user) {
+    public Map makeJwt(CbgUser user) {
         String encodedHeader = encode(header.getBytes());
         String encodedPayload = encode(makePayload(user).getBytes());
         String secret = readSecret();

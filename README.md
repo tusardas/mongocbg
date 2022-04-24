@@ -46,6 +46,9 @@ security:
 <code>
 mongodb://root:changeMeToAStrongPassword@localhost:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false
 </code>
-  
+8. Create db specific user
+<code>
+db.createUser({user:"cbg", pwd:"changeMeToAStrongPassword", roles:[{role:"dbOwner", db:"cbg"}]});
+</code> 
 # Running Springboot application:
   <code>mvn spring-boot:run</code>

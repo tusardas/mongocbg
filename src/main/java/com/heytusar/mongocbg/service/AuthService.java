@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.heytusar.mongocbg.model.User;
+import com.heytusar.mongocbg.model.CbgUser;
 import com.heytusar.mongocbg.model.UserSession;
 import com.heytusar.mongocbg.repository.UserRepository;
 import com.heytusar.mongocbg.repository.UserSessionRepository;
@@ -46,7 +46,7 @@ public class AuthService {
             json.put("error", "Please provide Username, Password");
             return result;
         }
-        User user = userRepository.findByUsernameAndPassword(usernameOrEmail, password);
+        CbgUser user = userRepository.findByUsernameAndPassword(usernameOrEmail, password);
         if(user == null) {
             user = userRepository.findByEmailAndPassword(usernameOrEmail, password);
         }
@@ -69,11 +69,11 @@ public class AuthService {
         return result;
     }
 
-    public List<User> getUsers() {
+    public List<CbgUser> getUsers() {
         return userRepository.findAll();
     }
 
-    public User getUser(String id) {
+    public CbgUser getUser(String id) {
         return userRepository.findById(id).orElse(null);
     }
 
@@ -88,7 +88,7 @@ public class AuthService {
             return json;
         }
 
-        User user = userRepository.findByEmail(email);
+        CbgUser user = userRepository.findByEmail(email);
         if(user != null) {
             json.put("error", "Email is already registered");
             return json;
@@ -98,7 +98,7 @@ public class AuthService {
             json.put("error", "Username is already registered");
             return json;
         }
-        user = new User();
+        user = new CbgUser();
         user.setEmail(email);
         user.setUsername(username);
         user.setPassword(password);

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.heytusar.mongocbg.model.User;
+import com.heytusar.mongocbg.model.CbgUser;
 import com.heytusar.mongocbg.service.AuthService;
 
 import org.json.JSONObject;
@@ -33,12 +33,12 @@ public class UserController {
     }
 
     @GetMapping(value="/users")
-    List<User> getUsers() {
+    List<CbgUser> getUsers() {
         return authService.getUsers();
     }
 
     @GetMapping(value="/user/{id}")
-    public User getUser(@PathVariable String id) {
+    public CbgUser getUser(@PathVariable String id) {
         return authService.getUser(id);
     }
 
